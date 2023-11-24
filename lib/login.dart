@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'forgotpassword.dart';
+
 class SignIn extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -9,21 +11,47 @@ class SignIn extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.green,
       ),
-      home: RegistrationForm(),
+      home: LoginForm(),
     );
   }
 }
 
-class RegistrationForm extends StatefulWidget {
+class LoginForm extends StatefulWidget {
   @override
   _RegistrationFormState createState() => _RegistrationFormState();
 }
 
-class _RegistrationFormState extends State<RegistrationForm> {
+class _RegistrationFormState extends State<LoginForm> {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   bool rememberMe = false;
-  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+
+  final FocusNode emailFocusNode = FocusNode();
+  final FocusNode passwordFocusNode = FocusNode();
+
+  String? _validateEmail(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Please enter an email address';
+    } else if (!RegExp(r'^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}$').hasMatch(value)) {
+      return 'Please enter a valid email address';
+    }
+    return null;
+  }
+
+  String? _validatePassword(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Please enter a password';
+    } else if (value.length < 8) {
+      return 'Password must be at least 8 characters long';
+    } else if (!RegExp(r'[a-z]').hasMatch(value)) {
+      return 'Password must contain at least one lowercase letter';
+    } else if (!RegExp(r'[A-Z]').hasMatch(value)) {
+      return 'Password must contain at least one uppercase letter';
+    } else if (!RegExp(r'[0-9]').hasMatch(value)) {
+      return 'Password must contain at least one digit';
+    }
+    return null;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -56,7 +84,6 @@ class _RegistrationFormState extends State<RegistrationForm> {
                     padding: const EdgeInsets.all(16.0),
                     child: Form(
                       autovalidateMode: AutovalidateMode.onUserInteraction,
-                      key: _formKey,
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -83,16 +110,13 @@ class _RegistrationFormState extends State<RegistrationForm> {
                                 ),
                                 child: TextFormField(
                                   controller: emailController,
+                                  focusNode: emailFocusNode,
                                   decoration: InputDecoration(
                                     border: InputBorder.none,
                                     contentPadding: EdgeInsets.symmetric(horizontal: 10),
                                   ),
-                                  validator: (value) {
-                                    if (value == null || value.isEmpty) {
-                                      return 'Please enter your email';
-                                    }
-                                    return null;
-                                  },
+                                  keyboardType: TextInputType.emailAddress,
+                                  validator: (value) => emailFocusNode.hasFocus ? _validateEmail(value) : null,
                                 ),
                               ),
                             ],
@@ -114,26 +138,20 @@ class _RegistrationFormState extends State<RegistrationForm> {
                                 ),
                                 child: TextFormField(
                                   controller: passwordController,
+                                  focusNode: passwordFocusNode,
                                   decoration: InputDecoration(
                                     border: InputBorder.none,
                                     contentPadding: EdgeInsets.symmetric(horizontal: 10),
                                   ),
                                   obscureText: true,
-                                  validator: (value) {
-                                    if (value == null || value.isEmpty) {
-                                      return 'Please enter a password';
-                                    }
-                                    return null;
-                                  },
+                                  validator: (value) => passwordFocusNode.hasFocus ? _validatePassword(value) : null,
                                 ),
                               ),
                             ],
                           ),
                           SizedBox(height: 16),
                           InkWell(
-                            onTap: () {
-
-                            },
+                            onTap: () {},
                             child: Text(
                               "New user? Create account",
                               textAlign: TextAlign.center,
@@ -154,13 +172,19 @@ class _RegistrationFormState extends State<RegistrationForm> {
                               Text('Remember me'),
                             ],
                           ),
-                          SizedBox(height: 16),
+                          SizedBox(height: 5),
                           Container(
                             width: 100,
                             child: ElevatedButton(
                               onPressed: () {
-                                if (_formKey.currentState?.validate() ?? false) {
+                                if (Form.of(context)!.validate()) {
                                   // Form is valid, handle login
+                                } else {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text('Please fill the feilds.'),
+                                    ),
+                                  );
                                 }
                               },
                               style: ButtonStyle(
@@ -173,8 +197,21 @@ class _RegistrationFormState extends State<RegistrationForm> {
                               ),
                               child: Text('Next'),
                             ),
+
                           ),
-                          SizedBox(height: 8),
+                          SizedBox(height: 7),
+                          Align(
+                            alignment: Alignment.center,
+                            child: GestureDetector(
+                              onTap: () {
+                                Navigator.push(context, MaterialPageRoute(builder: (context) => ForgotPasswordScreen()));
+                              },
+                              child: Text('Forgot Password?',style: TextStyle(color:Colors.blue),),
+
+                            ),),
+                          // SizedBox(height: 8),
+
+
                         ],
                       ),
                     ),

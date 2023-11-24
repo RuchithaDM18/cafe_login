@@ -63,7 +63,7 @@ flutter:
     - images/cafe.jpg
     - images/coffee.jpg
     - images/cfe.jpg
-    - images/ccff.jpg
+    - images/snack.jpg
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware
